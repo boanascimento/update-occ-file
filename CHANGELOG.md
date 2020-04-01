@@ -1,6 +1,6 @@
 # Log de alterações
 
-Aqui você pode ficar por dentro de que foi alterado ao cada versão gerada.
+Aqui você pode ficar por dentro do que foi alterado ou incrementado em cada versão gerada.
 
 ## Beta
 
