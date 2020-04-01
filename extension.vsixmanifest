@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="1.0">
+  <Metadata>
+    <Identity Version="2.1.40307.0" Id="boanergesbone.Application.Extension1" Language="us-en" Publisher="boanergesbone" />
+    <DisplayName>Update OCC File</DisplayName>
+    <Description>Faça download e widget ou envio de seus arquivos com mais facilidade</Description>
+    <Icon>uof-icon.png</Icon>
+    <PreviewImage>uof-icon.png</PreviewImage>
+    <Tags>foo, bar</Tags>
+  </Metadata>
+  
+  <InstallationTargets AllUsers="false" SystemComponent="false">
+    <Targets>
+      <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[10.0-11.0]" />
+    </Targets>
+  </InstallationTargets>
+  
+  <Dependencies>
+    <Dependency Id="another.package" Version="[1.2-2.0)" CanAutoDownload="true" IsRequired="true" />
+    <Dependency Id="Microsoft.Framework.NDP" Version="[4.0-5.0)" CanAutoDownload="false" IsRequired="true" />
+    <Dependency Id="foo.package" Version="[1.0-2.0)" DisplayName="CoolTool" Location="http://www.cooltool.com/download/cooltool.msi" AutoDownload="false" />
+  </Dependencies>
+  
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.Package" Path="foo.pkgdef" />
+    <Asset Type="Microsoft.VisualStudio.MEFComponent" Path="foo.dll" />
+    <Asset Type="Microsoft.VisualStudio.Sample" Path="foo\MySample.sln" />
+    <Asset Type="Microsoft.VisualStudio.Control" Path="control.pkgdef" />
+  </Assets>
+</PackageManifest>
