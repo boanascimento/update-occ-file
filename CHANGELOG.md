@@ -1,7 +1,8 @@
-# Change Log
+# Log de alterações
 
-All notable changes to the "update-occ-file" extension will be documented in this file.
+Aqui você pode ficar por dentro de que foi alterado ao cada versão gerada.
 
-## [1.0.0]
+## Beta
 
-- Initial realise of Update OCC File Extension
+- Download de Widget;
+- Envio de um ou mais arquivos do Widget.

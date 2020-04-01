@@ -4,12 +4,11 @@ Esta extenção foi criada para dar mais agilidade ao realizar download de um wi
 
 ## Apresentação
 
-A versão atual te permitirá enviar realizar o download de um widget e enviar arquivos alterados assim que o mesmo for salvo. Mas pada isso, é necessário ativar a extenção caso você tenha acabado de abrir o VSCode. Basta clicar com o botão direito no arquivo que você deseja enviar, e em seguida na opção **Update OCC File**. Assim você vai iniciar o comando e daí pra frente, até que vc feche completamente o VSCode, sempre que um arquivo for salvo o envio dele será realizar.
+A versão atual te permitirá enviar realizar o download de um widget e enviar arquivos alterados assim que o mesmo for salvo. Mas para isso, é necessário ativar a extenção caso você tenha acabado de abrir o VSCode. Basta clicar com o botão direito no arquivo que você deseja enviar, e em seguida na opção **Update OCC File**. Assim você vai iniciar o comando e daí pra frente, até que você feche completamente o VSCode, sempre que um arquivo for salvo o envio dele será realizar.
+> ![Local do comando](https://user-images.githubusercontent.com/22202005/78039759-e67acf80-7344-11ea-9b57-4a5be1291c08.png)
 
 Esta versão é apenas para testes com poucas pessoas. Então a mesma está sujeita a alterações ou sugestões de melhoria.
 Há, também, possíveis erros ainda não vistos e outros já levantados os quais estão sendo resolvidos.
-
-![Local do comando](https://user-images.githubusercontent.com/22202005/78039759-e67acf80-7344-11ea-9b57-4a5be1291c08.png)
 
 > Para sugestões, mande um e-mail para **boanerges.nascimento@compasso.com.br**.
 
@@ -21,10 +20,13 @@ Nem preciso falar que vc vai precisa do Node instalado, né?
 
 O VSCode precisa que você abra a pasta do seu widget como sendo a raiz/worspace da aba do VSCode aberta.
 
-Estando no worspace do seu widget, você precisará criar um arquivo de configurações com a extensão `.json`, o qual será lido pela extensão e utilizará algumas propriedade.
+Para facilitar o uso, você precisará criar algumas variáveis de ambiente:
 
 - Crie uma variável de ambiente e nomeie `DEV_API_KEY` em seu compucator e seu valor será a sua API Kei do respectivo ambiente no OCC. Repita também para os ambientes de **UAT** e **PRD**.;
 - Crie uma variável de ambiente e nomeie `DEV_NODE` em seu compucator e seu valor será a URL do seu respectivo ambiente. Repita também para os ambientes de **UAT** e **PRD**;
+
+Estando no worspace do seu widget, você precisará criar um arquivo de configurações com a extensão `.json`, o qual será lido pela extensão e utilizará algumas propriedade.
+
 - Crie o arquivo e nomeie `uofSettings.json`;
 - Cole os dados abaixo do arquivo criado e altere conforme informado em cada propriedade:
   ```
@@ -50,6 +52,7 @@ Tecle `CTRL+Shift+P` e selecione o comando **Get OCC Widget**.
 
 Nesta versão você pode vazer download de um widget e enviarum arquivo deste para a interface no OCC.
 
-### 1.0.0
+### Beta
 
-Initial release of Update OCC File
+Tersão de testes externos
+> Aberto a melhorias e sugestões.
