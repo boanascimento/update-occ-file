@@ -40,7 +40,7 @@ Estando no worspace do seu widget, você precisará criar um arquivo de configur
 
 Tendo atendido os pontos acima, você pode salvar um ou mais arquivos e aguardar o upload acompanhando o terminar do VSCode.
 
-### Para enviar aquivos
+### Para baixar o Widget
 
 Tecle `CTRL+Shift+P` e selecione o comando **Get OCC Widget**.
 
