@@ -76,15 +76,31 @@ export function activate(context: vscode.ExtensionContext) {
 				} else { vscode.window.showErrorMessage(`Você está no workspace "${_workspace.name}". O workspace selecionado no VSCode precisa ser o diretório do widget "${settings.widgetName}" definido no arquivo "uofSettings.json".`); }
 			}
 		});
-		// The code you place here will be executed every time your command is executed
 
-		// Display a message box to the user
-		// vscode.window.showInformationMessage('Update OCC File está ativo agora!');
+	});
 
+	let uofPrepare = vscode.commands.registerCommand('extension.uofPrepare', (item) => {
+		const _workspace = vscode.workspace.workspaceFolders![0];
+		const fsPath = _workspace.uri.fsPath;
+		const wsedit = new vscode.WorkspaceEdit();
+		const filePath = vscode.Uri.file(fsPath + '/uofSettings.json');
+		const value = {
+			"environment": "dev",
+			"widgetName": _workspace.name,
+			"DCUPath": "c:/development/DCU19/dcuIndex.js",
+			"OCCRootPath": "c:/development/OCC",
+			"platform": "windows"
+		};
+		const textEdit = new vscode.TextEdit(new vscode.Range(1,1,1,1), JSON.stringify(value));
+		wsedit.createFile(filePath, { ignoreIfExists: true, overwrite: true });
+		wsedit.set(filePath, [textEdit]);
+		vscode.workspace.applyEdit(wsedit);
+		vscode.window.showInformationMessage('Arquivo "uofSettings.json" criado!');
 	});
 
 	/* Caso precise que seja salvo enviado ao salvar o arquivo. */
 	context.subscriptions.push(disposable);
+	context.subscriptions.push(uofPrepare);
 	context.subscriptions.push(getOCCWidget);
 	context.subscriptions.push(workspace.onDidSaveTextDocument((td) => {
 		const fileName = td.fileName;
