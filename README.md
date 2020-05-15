@@ -34,7 +34,8 @@ Estando no worspace do seu widget, você precisará criar um arquivo de configur
     "environment": "dev",
     "widgetName": "custom-nome-do-widget",
     "DCUPath": "c:/development/DCU19/dcuIndex.js",
-    "OCCRootPath": "c:/development/OCC"
+    "OCCRootPath": "c:/development/OCC",
+    "platform": "windows" // windows || ios
   }
   ```
 
