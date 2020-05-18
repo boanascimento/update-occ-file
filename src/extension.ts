@@ -127,7 +127,7 @@ export function activate(context: vscode.ExtensionContext) {
 							const node = validateEnvironmentPropertyNode(settings.environment.toLowerCase(), settings.platform.toLowerCase());
 							const time = `echo [${new Date().getHours()}:${new Date().getMinutes()}]`;
 
-							if (settings.environment.toLowerCase() === 'dev' || settings.environment.toLowerCase() === 'uat' || settings.environment.toLowerCase() === 'prd') {
+							if (validateEnvData(settings.environment.toLowerCase())) {
 								vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
 								terminal?.sendText(`dcu -n ${node} -k ${apiAccessKey} -t "${fileName}"`);
 							} else { vscode.window.showErrorMessage(`Valor incorreto na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
@@ -138,6 +138,14 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	}));
 
+}
+
+/**
+ * Valida as informações na propriedade `environment`.
+ * @param envData Dado informado na propriedade `environment`.
+ */
+function validateEnvData(envData: string) {
+	return envData === 'dev' || envData === 'uat' || envData === 'prd' || envData === 'dev-lpp' || envData === 'uat-lpp' || envData === 'prd-lpp';
 }
 
 /**
@@ -155,7 +163,7 @@ function sendOCCFile(item: any, settings: UpdateOCCFileSettings) {
 			const terminal = vscode.window.activeTerminal;
 			const time = `echo [${new Date().getHours()}:${new Date().getMinutes()}]`;
 
-			if (settings.environment.toLowerCase() === 'dev' || settings.environment.toLowerCase() === 'uat' || settings.environment.toLowerCase() === 'prd') {
+			if (validateEnvData(settings.environment.toLowerCase())) {
 
 				console.log('TCL Bonny: activate -> time', time);
 				vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
