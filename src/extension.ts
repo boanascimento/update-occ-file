@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { UpdateOCCFileSettings } from './models/updateOCCFileSettings.module';
 import { } from 'chromedriver';
-import { EEnvWindows, EEnvIos } from './extension.enum';
+import { EEnvWindows, EEnvIos, EEnvWindowsLpp, EEnvIosLpp } from './extension.enum';
 // const info = require("./logger").info;
 // var webdriver = require('selenium-webdriver');
 
@@ -69,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
 								vscode.window.showInformationMessage(`Executando download do widget "${_workspace.name}".`);
 
 								const time = `echo [${new Date().getHours()}:${new Date().getMinutes()}]`;
-								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -g "widget/${_workspace.name}"`);
+								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -e "widget/${_workspace.name}"`);
 							} else { vscode.window.showErrorMessage(`É preciso informar o caminho(path) da pasta raiz do OCC para download do widget "${_workspace.name}" na propriedade "OCCRootPath" do arquivo "uofSettings.json".`); }
 						} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
 					} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
@@ -87,11 +87,11 @@ export function activate(context: vscode.ExtensionContext) {
 		const value = {
 			"environment": "dev",
 			"widgetName": _workspace.name,
-			"DCUPath": "c:/development/DCU19/dcuIndex.js",
+			"DCUPath": "c:/development/DCU112/dcuIndex.js",
 			"OCCRootPath": "c:/development/OCC",
 			"platform": "windows"
 		};
-		const textEdit = new vscode.TextEdit(new vscode.Range(1,1,1,1), JSON.stringify(value));
+		const textEdit = new vscode.TextEdit(new vscode.Range(1, 1, 1, 1), JSON.stringify(value));
 		wsedit.createFile(filePath, { ignoreIfExists: true, overwrite: true });
 		wsedit.set(filePath, [textEdit]);
 		vscode.workspace.applyEdit(wsedit);
@@ -171,8 +171,14 @@ function sendOCCFile(item: any, settings: UpdateOCCFileSettings) {
  * @param environment Embiante de desenvolvimento.
  */
 function validateEnvironmentPropertyApiKey(environment: string, platform: string) {
-	const env = platform === 'windows' ? EEnvWindows : EEnvIos;
-	return environment === 'prd' ? env.prodApiKey : environment === 'uat' ? env.uatApiKey : environment === 'dev' ? env.devApiKey : 'error';
+	if (environment.indexOf('-lpp') > -1) {
+		const env = platform === 'windows' ? EEnvWindowsLpp : EEnvIosLpp;
+		return environment === 'prd-lpp' ? env.prodApiKey : environment === 'uat-lpp' ? env.uatApiKey : environment === 'dev-lpp' ? env.devApiKey : 'error';
+	}
+	else {
+		const env = platform === 'windows' ? EEnvWindows : EEnvIos;
+		return environment === 'prd' ? env.prodApiKey : environment === 'uat' ? env.uatApiKey : environment === 'dev' ? env.devApiKey : 'error';
+	}
 }
 
 /**
@@ -180,8 +186,14 @@ function validateEnvironmentPropertyApiKey(environment: string, platform: string
  * @param environment Embiante de desenvolvimento.
  */
 function validateEnvironmentPropertyNode(environment: string, platform: string) {
-	const env = platform === 'windows' ? EEnvWindows : EEnvIos;
-	return environment === 'prd' ? env.prodNode : environment === 'uat' ? env.uatNode : environment === 'dev' ? env.devNode : 'error';
+	if (environment.indexOf('-lpp') > -1) {
+		const env = platform === 'windows' ? EEnvWindowsLpp : EEnvIosLpp;
+		return environment === 'prd-lpp' ? env.prodNode : environment === 'uat-lpp' ? env.uatNode : environment === 'dev-lpp' ? env.devNode : 'error';
+	}
+	else {
+		const env = platform === 'windows' ? EEnvWindows : EEnvIos;
+		return environment === 'prd' ? env.prodNode : environment === 'uat' ? env.uatNode : environment === 'dev' ? env.devNode : 'error';
+	}
 }
 
 function getWebviewContent(cat: keyof typeof cats) {
