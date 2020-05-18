@@ -87,7 +87,6 @@ export function activate(context: vscode.ExtensionContext) {
 		const value = {
 			"environment": "dev",
 			"widgetName": _workspace.name,
-			"DCUPath": "c:/development/DCU112/dcuIndex.js",
 			"OCCRootPath": "c:/development/OCC",
 			"platform": "windows"
 		};
