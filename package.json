@@ -2,7 +2,7 @@
 	"name": "update-occ-file",
 	"displayName": "Update OCC File",
 	"description": "Utilizada para atualizar um arquivo específico no OCC Livelo",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"publisher": "boanergesbone",
 	"icon": "uof-icon.png",
 	"repository": {
@@ -18,7 +18,8 @@
 	"activationEvents": [
 		"onCommand:extension.updateOCCFile",
 		"onCommand:extension.getOCCWidget",
-		"onCommand:extension.uofPrepare"
+		"onCommand:extension.uofPrepare",
+		"onCommand:extension.runGrab"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -34,6 +35,10 @@
 			{
 				"command": "extension.uofPrepare",
 				"title": "UOF Prepare"
+			},
+			{
+				"command": "extension.runGrab",
+				"title": "UOF Run Grab"
 			}
 		],
 		"menus": {

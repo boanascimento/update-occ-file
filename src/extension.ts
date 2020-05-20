@@ -68,8 +68,39 @@ export function activate(context: vscode.ExtensionContext) {
 								const node = validateEnvironmentPropertyNode(settings.environment.toLowerCase(), settings.platform.toLowerCase());
 								vscode.window.showInformationMessage(`Executando download do widget "${_workspace.name}".`);
 
-								const time = `echo [${new Date().getHours()}:${new Date().getMinutes()}]`;
+								terminal?.sendText(`prompt $P [$T$H$H$H$G]`);
 								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -e "widget/${_workspace.name}"`);
+								terminal?.sendText(`prompt $P`);
+							} else { vscode.window.showErrorMessage(`É preciso informar o caminho(path) da pasta raiz do OCC para download do widget "${_workspace.name}" na propriedade "OCCRootPath" do arquivo "uofSettings.json".`); }
+						} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
+					} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
+				} else { vscode.window.showErrorMessage(`Você está no workspace "${_workspace.name}". O workspace selecionado no VSCode precisa ser o diretório do widget "${settings.widgetName}" definido no arquivo "uofSettings.json".`); }
+			}
+		});
+
+	});
+
+	let runGrab = vscode.commands.registerCommand('extension.runGrab', (item) => {
+		const _workspace = vscode.workspace.workspaceFolders![0];
+		workspace.findFiles(new vscode.RelativePattern(_workspace, "**/uofSettings.json"), "**/node_modules/**").then(results => {
+			if (results[0]) {
+				const jsonFile = results[0].fsPath;
+				const data = fs.readFileSync(jsonFile);
+				const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+				if (_workspace.name === settings.widgetName) {
+
+					if (settings.environment && settings.environment !== '') {
+						if (settings.platform) {
+							const terminal = vscode.window.activeTerminal;
+							if (settings.OCCRootPath) {
+								const apiAccessKey = validateEnvironmentPropertyApiKey(settings.environment.toLowerCase(), settings.platform.toLowerCase());
+								const node = validateEnvironmentPropertyNode(settings.environment.toLowerCase(), settings.platform.toLowerCase());
+								vscode.window.showInformationMessage(`Executando download dos widgets.`);
+
+								terminal?.sendText(`prompt $P [$T$H$H$H$G]`);
+								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -g`);
+								terminal?.sendText(`prompt $P`);
+
 							} else { vscode.window.showErrorMessage(`É preciso informar o caminho(path) da pasta raiz do OCC para download do widget "${_workspace.name}" na propriedade "OCCRootPath" do arquivo "uofSettings.json".`); }
 						} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
 					} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
@@ -129,7 +160,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 							if (validateEnvData(settings.environment.toLowerCase())) {
 								vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
+								terminal?.sendText(`prompt $P [$T$H$H$H$G]`);
 								terminal?.sendText(`dcu -n ${node} -k ${apiAccessKey} -t "${fileName}"`);
+								terminal?.sendText(`prompt $P`);
 							} else { vscode.window.showErrorMessage(`Valor incorreto na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
 						} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
 					} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
@@ -167,7 +200,9 @@ function sendOCCFile(item: any, settings: UpdateOCCFileSettings) {
 
 				console.log('TCL Bonny: activate -> time', time);
 				vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
+				terminal?.sendText(`prompt $P [$T$H$H$H$G]`);
 				terminal?.sendText(`dcu -n ${node} -k ${apiAccessKey} -t "${fileName}"`);
+				terminal?.sendText(`prompt $P`);
 			} else { vscode.window.showErrorMessage(`Valor incorreto na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
 		} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
 	} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
