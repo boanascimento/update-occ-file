@@ -2,7 +2,7 @@
 	"name": "update-occ-file",
 	"displayName": "Update OCC File",
 	"description": "Utilizada para atualizar um arquivo específico no OCC Livelo",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"publisher": "boanergesbone",
 	"icon": "uof-icon.png",
 	"repository": {

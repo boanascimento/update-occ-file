@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
 								const node = validateEnvironmentPropertyNode(settings.environment.toLowerCase(), settings.platform.toLowerCase());
 								vscode.window.showInformationMessage(`Executando download do widget "${_workspace.name}".`);
 
-								terminal?.sendText(`prompt $P [$T$H$H$H$G]`);
+								terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
 								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -e "widget/${_workspace.name}"`);
 								terminal?.sendText(`prompt $P`);
 							} else { vscode.window.showErrorMessage(`É preciso informar o caminho(path) da pasta raiz do OCC para download do widget "${_workspace.name}" na propriedade "OCCRootPath" do arquivo "uofSettings.json".`); }
@@ -97,7 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
 								const node = validateEnvironmentPropertyNode(settings.environment.toLowerCase(), settings.platform.toLowerCase());
 								vscode.window.showInformationMessage(`Executando download dos widgets.`);
 
-								terminal?.sendText(`prompt $P [$T$H$H$H$G]`);
+								terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
 								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -g`);
 								terminal?.sendText(`prompt $P`);
 
@@ -160,7 +160,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 							if (validateEnvData(settings.environment.toLowerCase())) {
 								vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
-								terminal?.sendText(`prompt $P [$T$H$H$H$G]`);
+								terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
 								terminal?.sendText(`dcu -n ${node} -k ${apiAccessKey} -t "${fileName}"`);
 								terminal?.sendText(`prompt $P`);
 							} else { vscode.window.showErrorMessage(`Valor incorreto na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
@@ -200,7 +200,7 @@ function sendOCCFile(item: any, settings: UpdateOCCFileSettings) {
 
 				console.log('TCL Bonny: activate -> time', time);
 				vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
-				terminal?.sendText(`prompt $P [$T$H$H$H$G]`);
+				terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
 				terminal?.sendText(`dcu -n ${node} -k ${apiAccessKey} -t "${fileName}"`);
 				terminal?.sendText(`prompt $P`);
 			} else { vscode.window.showErrorMessage(`Valor incorreto na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
