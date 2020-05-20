@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 								terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
 								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -e "widget/${_workspace.name}"`);
-								terminal?.sendText(`prompt $P$G`);
+								terminal?.sendText(`prompt $P$G && cd "${_workspace.uri.fsPath}"`);
 							} else { vscode.window.showErrorMessage(`É preciso informar o caminho(path) da pasta raiz do OCC para download do widget "${_workspace.name}" na propriedade "OCCRootPath" do arquivo "uofSettings.json".`); }
 						} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
 					} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
@@ -99,7 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 								terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
 								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -g`);
-								terminal?.sendText(`prompt $P$G`);
+								terminal?.sendText(`prompt $P$G && cd "${_workspace.uri.fsPath}"`);
 
 							} else { vscode.window.showErrorMessage(`É preciso informar o caminho(path) da pasta raiz do OCC para download do widget "${_workspace.name}" na propriedade "OCCRootPath" do arquivo "uofSettings.json".`); }
 						} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
