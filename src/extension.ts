@@ -3,25 +3,17 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { UpdateOCCFileSettings } from './models/updateOCCFileSettings.module';
-import { } from 'chromedriver';
-import { EEnvWindows, EEnvIos, EEnvWindowsLpp, EEnvIosLpp } from './extension.enum';
-// const info = require("./logger").info;
-// var webdriver = require('selenium-webdriver');
+import { EEnvWindowsPf, EEnvIosPf, EEnvWindowsPj, EEnvIosPj, EOccEnv } from './extension.enum';
 
-const cats = {
-	'Coding Cat': 'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
-	'Compiling Cat': 'https://media.giphy.com/media/mlvseq9yvZhba/giphy.gif'
-};
-
+const occEnv = EOccEnv;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	const workspace = vscode.workspace;
 	// const fsPath = vscode.workspace.fs.readDirectory;
-	const baseCommand = "npm run send ";
 	// const accessToken = "vpvg447hj2wekyz4x3dhrqgkepangyzfsiczsrbqjqjipqlywb6a";
-	const OCCActionsTerminalName = "OCC actions";
+	// const OCCActionsTerminalName = "OCC actions";
 
 	// let NEXT_TERM_ID = 1;
 
@@ -44,11 +36,6 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 		});
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		// vscode.window.showInformationMessage('Update OCC File está ativo agora!');
-
 	});
 
 	let getOCCWidget = vscode.commands.registerCommand('extension.getOCCWidget', (item) => {
@@ -114,7 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const wsedit = new vscode.WorkspaceEdit();
 		const filePath = vscode.Uri.file(fsPath + '/uofSettings.json');
 		const value = {
-			"environment": "dev",
+			"environment": "dev-pf",
 			"widgetName": _workspace.name,
 			"OCCRootPath": "c:/development/OCC",
 			"platform": "windows"
@@ -135,12 +122,6 @@ export function activate(context: vscode.ExtensionContext) {
 		const terminal = vscode.window.activeTerminal;
 		const _workspace = vscode.workspace.workspaceFolders![0];
 
-		// terminal?.processId.then(tes => {
-
-		// });
-		// terminal?.sendText(`${time} && ${baseCommand}"${fileName}"`);
-
-
 		workspace.findFiles(new vscode.RelativePattern(_workspace, "**/uofSettings.json"), "**/node_modules/**").then(results => {
 			if (results[0]) {
 				const jsonFile = results[0].fsPath;
@@ -157,6 +138,13 @@ export function activate(context: vscode.ExtensionContext) {
 							const time = `echo [${new Date().getHours()}:${new Date().getMinutes()}]`;
 
 							if (validateEnvData(settings.environment.toLowerCase())) {
+								if (settings.environment.toLowerCase().indexOf('-pj') > -1) {
+									// const x = fileName.split(`teste-ocd\\`);
+									// const y = settings.
+									
+									let q = x.join('teste-ocd\\.ccc\\');
+                  console.log('TCL Bonny: activate -> x', q);
+								}
 								vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
 								terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
 								terminal?.sendText(`dcu -n ${node} -k ${apiAccessKey} -t "${fileName}" & prompt $P$G`);
@@ -175,7 +163,7 @@ export function activate(context: vscode.ExtensionContext) {
  * @param envData Dado informado na propriedade `environment`.
  */
 function validateEnvData(envData: string) {
-	return envData === 'dev' || envData === 'uat' || envData === 'prd' || envData === 'dev-lpp' || envData === 'uat-lpp' || envData === 'prd-lpp';
+	return envData === occEnv.devPf || envData === occEnv.uatPf || envData === occEnv.prdPf || envData === occEnv.devPj || envData === occEnv.uatPj || envData === occEnv.prdPj;
 }
 
 /**
@@ -209,13 +197,13 @@ function sendOCCFile(item: any, settings: UpdateOCCFileSettings) {
  * @param environment Embiante de desenvolvimento.
  */
 function validateEnvironmentPropertyApiKey(environment: string, platform: string) {
-	if (environment.indexOf('-lpp') > -1) {
-		const env = platform === 'windows' ? EEnvWindowsLpp : EEnvIosLpp;
-		return environment === 'prd-lpp' ? env.prodApiKey : environment === 'uat-lpp' ? env.uatApiKey : environment === 'dev-lpp' ? env.devApiKey : 'error';
+	if (environment.indexOf('-pj') > -1) {
+		const env = platform === 'windows' ? EEnvWindowsPj : EEnvIosPj;
+		return environment === occEnv.prdPj ? env.prodApiKey : environment === occEnv.uatPj ? env.uatApiKey : environment === occEnv.devPj ? env.devApiKey : 'error';
 	}
 	else {
-		const env = platform === 'windows' ? EEnvWindows : EEnvIos;
-		return environment === 'prd' ? env.prodApiKey : environment === 'uat' ? env.uatApiKey : environment === 'dev' ? env.devApiKey : 'error';
+		const env = platform === 'windows' ? EEnvWindowsPf : EEnvIosPf;
+		return environment === occEnv.prdPf ? env.prodApiKey : environment === occEnv.uatPf ? env.uatApiKey : environment === occEnv.devPf ? env.devApiKey : 'error';
 	}
 }
 
@@ -224,13 +212,13 @@ function validateEnvironmentPropertyApiKey(environment: string, platform: string
  * @param environment Embiante de desenvolvimento.
  */
 function validateEnvironmentPropertyNode(environment: string, platform: string) {
-	if (environment.indexOf('-lpp') > -1) {
-		const env = platform === 'windows' ? EEnvWindowsLpp : EEnvIosLpp;
-		return environment === 'prd-lpp' ? env.prodNode : environment === 'uat-lpp' ? env.uatNode : environment === 'dev-lpp' ? env.devNode : 'error';
+	if (environment.indexOf('-pj') > -1) {
+		const env = platform === 'windows' ? EEnvWindowsPj : EEnvIosPj;
+		return environment === occEnv.prdPj ? env.prodNode : environment === occEnv.uatPj ? env.uatNode : environment === occEnv.devPj ? env.devNode : 'error';
 	}
 	else {
-		const env = platform === 'windows' ? EEnvWindows : EEnvIos;
-		return environment === 'prd' ? env.prodNode : environment === 'uat' ? env.uatNode : environment === 'dev' ? env.devNode : 'error';
+		const env = platform === 'windows' ? EEnvWindowsPf : EEnvIosPf;
+		return environment === occEnv.prdPf ? env.prodNode : environment === occEnv.uatPf ? env.uatNode : environment === occEnv.devPf ? env.devNode : 'error';
 	}
 }
 

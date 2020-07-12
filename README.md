@@ -22,8 +22,8 @@ O VSCode precisa que você abra a pasta do seu widget como sendo a raiz/worspace
 
 Para facilitar o uso, você precisará criar algumas variáveis de ambiente:
 
-- Crie uma variável de ambiente e nomeie `DEV_API_KEY` e `DEV_API_KEY_LPP` em seu compucator e seu valor será a sua API Kei do respectivo ambiente no OCC. Repita também para os ambientes de **UAT** e **PRD**.;
-- Crie uma variável de ambiente e nomeie `DEV_NODE` e `DEV_NODE_LPP` em seu compucator e seu valor será a URL do seu respectivo ambiente. Repita também para os ambientes de **UAT** e **PRD**;
+- Crie uma variável de ambiente e nomeie `DEV_API_KEY_PF` (Livelo Pontos) e `DEV_API_KEY_PJ` (Protal de Parceiros) em seu compucator e seu valor será a sua **API Key** do respectivo ambiente no OCC. Repita também para os ambientes de **UAT** e **PRD** de cada ambiente;
+- Crie uma variável de ambiente e nomeie `DEV_NODE_PF` (Livelo Pontos) e `DEV_NODE_PJ` (Protal de Parceiros) em seu compucator e seu valor deverá ser a URL do seu respectivo ambiente. Repita também para os ambientes de **UAT** e **PRD** de cada ambiente;
 
 Estando no worspace do seu widget, você precisará criar um arquivo de configurações com a extensão `.json`, o qual será lido pela extensão e utilizará algumas propriedade.
 
@@ -31,7 +31,7 @@ Estando no worspace do seu widget, você precisará criar um arquivo de configur
 - Cole os dados abaixo do arquivo criado e altere conforme informado em cada propriedade:
   ```
   {
-    "environment": "dev", // dev || dev-lpp -> Para Livelo Portal de parceiros
+    "environment": "dev", // dev-pj || dev-pf -> Para Livelo Portal de parceiros
     "widgetName": "custom-nome-do-widget",
     "OCCRootPath": "c:/development/OCC",
     "platform": "windows" // windows || ios

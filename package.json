@@ -2,7 +2,7 @@
 	"name": "update-occ-file",
 	"displayName": "Update OCC File",
 	"description": "Utilizada para atualizar um arquivo específico no OCC Livelo",
-	"version": "0.2.3",
+	"version": "0.3.0",
 	"publisher": "boanergesbone",
 	"icon": "uof-icon.png",
 	"repository": {
@@ -30,7 +30,7 @@
 			},
 			{
 				"command": "extension.getOCCWidget",
-				"title": "Get OCC Widget"
+				"title": "UOF Get OCC Widget"
 			},
 			{
 				"command": "extension.uofPrepare",

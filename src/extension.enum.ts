@@ -1,35 +1,44 @@
-export enum EEnvWindows {
-  devNode = '%DEV_NODE%',
-  devApiKey = '%DEV_API_KEY%',
-  prodNode = '%PROD_NODE%',
-  prodApiKey = '%PROD_API_KEY%',
-  uatNode = '%UAT_NODE%',
-  uatApiKey = '%UAT_API_KEY%'
+export enum EEnvWindowsPf {
+  devNode = '%DEV_NODE_PF%',
+  devApiKey = '%DEV_API_KEY_PF%',
+  prodNode = '%PROD_NODE_PF%',
+  prodApiKey = '%PROD_API_KEY_PF%',
+  uatNode = '%UAT_NODE_PF%',
+  uatApiKey = '%UAT_API_KEY_PF%'
 }
 
-export enum EEnvWindowsLpp {
-  devNode = '%DEV_NODE_LPP%',
-  devApiKey = '%DEV_API_KEY_LPP%',
-  prodNode = '%PROD_NODE_LPP%',
-  prodApiKey = '%PROD_API_KEY_LPP%',
-  uatNode = '%UAT_NODE_LPP%',
-  uatApiKey = '%UAT_API_KEY_LPP%'
+export enum EEnvWindowsPj {
+  devNode = '%DEV_NODE_PJ%',
+  devApiKey = '%DEV_API_KEY_PJ%',
+  prodNode = '%PROD_NODE_PJ%',
+  prodApiKey = '%PROD_API_KEY_PJ%',
+  uatNode = '%UAT_NODE_PJ%',
+  uatApiKey = '%UAT_API_KEY_PJ%'
 }
 
-export enum EEnvIos {
-  devNode = '$DEV_NODE',
-  devApiKey = '$DEV_API_KEY',
-  prodNode = '$PROD_NODE',
-  prodApiKey = '$PROD_API_KEY',
-  uatNode = '$UAT_NODE',
-  uatApiKey = '$UAT_API_KEY'
+export enum EEnvIosPf {
+  devNode = '$DEV_NODE_PF',
+  devApiKey = '$DEV_API_KEY_PF',
+  prodNode = '$PROD_NODE_PF',
+  prodApiKey = '$PROD_API_KEY_PF',
+  uatNode = '$UAT_NODE_PF',
+  uatApiKey = '$UAT_API_KEY_PF'
 }
 
-export enum EEnvIosLpp {
-  devNode = '$DEV_NODE_LPP',
-  devApiKey = '$DEV_API_KEY_LPP',
-  prodNode = '$PROD_NODE_LPP',
-  prodApiKey = '$PROD_API_KEY_LPP',
-  uatNode = '$UAT_NODE_LPP',
-  uatApiKey = '$UAT_API_KEY_LPP'
+export enum EEnvIosPj {
+  devNode = '$DEV_NODE_PJ',
+  devApiKey = '$DEV_API_KEY_PJ',
+  prodNode = '$PROD_NODE_PJ',
+  prodApiKey = '$PROD_API_KEY_PJ',
+  uatNode = '$UAT_NODE_PJ',
+  uatApiKey = '$UAT_API_KEY_PJ'
+}
+
+export enum EOccEnv {
+  devPj = 'dev-pj',
+  uatPj = 'uat-pj',
+  prdPj = 'prd-pj',
+  devPf = 'dev-pf',
+  uatPf = 'uat-pf',
+  prdPf = 'prd-pf'
 }
