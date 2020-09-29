@@ -3,9 +3,10 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { UpdateOCCFileSettings } from './models/updateOCCFileSettings.module';
-import { EEnvWindowsPf, EEnvIosPf, EEnvWindowsPj, EEnvIosPj, EOccEnv } from './extension.enum';
+import { EOccAlias } from './extension.enum';
+// import childProcess = require('child_process');
 
-const occEnv = EOccEnv;
+const occAlias = EOccAlias;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -13,86 +14,60 @@ export function activate(context: vscode.ExtensionContext) {
 	const workspace = vscode.workspace;
 	// const fsPath = vscode.workspace.fs.readDirectory;
 	// const accessToken = "vpvg447hj2wekyz4x3dhrqgkepangyzfsiczsrbqjqjipqlywb6a";
-	// const OCCActionsTerminalName = "OCC actions";
 
 	// let NEXT_TERM_ID = 1;
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.updateOCCFile', (item) => {
+	let sendFile = vscode.commands.registerCommand('extension.sendFile', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		workspace.findFiles(new vscode.RelativePattern(_workspace, "**/uofSettings.json"), "**/node_modules/**").then(results => {
-			if (results[0]) {
-				const jsonFile = results[0].fsPath;
-				const data = fs.readFileSync(jsonFile);
-				const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-				if (_workspace.name === settings.widgetName) {
-
-					sendOCCFile(item, settings);
-
-				} else {
-					vscode.window.showErrorMessage(`Você está no workspace "${_workspace.name}". O workspace selecionado no VSCode precisa ser o diretório do widget "${settings.widgetName}" definido no arquivo "uofSettings.json".`);
-				}
-			}
-		});
+		const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
+		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+		if (settings) {
+			sendOCCFile(item, settings, _workspace);
+		}
 	});
 
-	let getOCCWidget = vscode.commands.registerCommand('extension.getOCCWidget', (item) => {
-		const _workspace = vscode.workspace.workspaceFolders![0];
-		workspace.findFiles(new vscode.RelativePattern(_workspace, "**/uofSettings.json"), "**/node_modules/**").then(results => {
-			if (results[0]) {
-				const jsonFile = results[0].fsPath;
-				const data = fs.readFileSync(jsonFile);
-				const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-				if (_workspace.name === settings.widgetName) {
+	let refreshWidget = vscode.commands.registerCommand('extension.refreshWidget', (item) => {
+		const fsPath: string = item?.fsPath;
+		gradOrRefreshWidget(fsPath, 'e');
+	});
 
-					if (settings.environment && settings.environment !== '') {
-						if (settings.platform) {
-							const terminal = vscode.window.activeTerminal;
-							if (settings.OCCRootPath) {
-								const apiAccessKey = validateEnvironmentPropertyApiKey(settings.environment.toLowerCase(), settings.platform.toLowerCase());
-								const node = validateEnvironmentPropertyNode(settings.environment.toLowerCase(), settings.platform.toLowerCase());
-								vscode.window.showInformationMessage(`Executando download do widget "${_workspace.name}".`);
-
-								terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
-								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -e "widget/${_workspace.name}" & prompt $P$G && cd "${_workspace.uri.fsPath}"`);
-							} else { vscode.window.showErrorMessage(`É preciso informar o caminho(path) da pasta raiz do OCC para download do widget "${_workspace.name}" na propriedade "OCCRootPath" do arquivo "uofSettings.json".`); }
-						} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
-					} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
-				} else { vscode.window.showErrorMessage(`Você está no workspace "${_workspace.name}". O workspace selecionado no VSCode precisa ser o diretório do widget "${settings.widgetName}" definido no arquivo "uofSettings.json".`); }
-			}
-		});
-
+	let grabWidget = vscode.commands.registerCommand('extension.grabWidget', (item) => {
+		const fsPath: string = item?.fsPath;
+		gradOrRefreshWidget(fsPath, 'g');
 	});
 
 	let runGrab = vscode.commands.registerCommand('extension.runGrab', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		workspace.findFiles(new vscode.RelativePattern(_workspace, "**/uofSettings.json"), "**/node_modules/**").then(results => {
-			if (results[0]) {
-				const jsonFile = results[0].fsPath;
-				const data = fs.readFileSync(jsonFile);
-				const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-				if (_workspace.name === settings.widgetName) {
+		const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
+		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
+			const terminal = getActiveOccTerminal();
+			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.dcu);
 
-					if (settings.environment && settings.environment !== '') {
-						if (settings.platform) {
-							const terminal = vscode.window.activeTerminal;
-							if (settings.OCCRootPath) {
-								const apiAccessKey = validateEnvironmentPropertyApiKey(settings.environment.toLowerCase(), settings.platform.toLowerCase());
-								const node = validateEnvironmentPropertyNode(settings.environment.toLowerCase(), settings.platform.toLowerCase());
-								vscode.window.showInformationMessage(`Executando download dos widgets.`);
-
-								terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
-								terminal?.sendText(`cd ${settings.OCCRootPath} && dcu -n ${node} -k ${apiAccessKey} -g & prompt $P$G && cd "${_workspace.uri.fsPath}"`);
-
-							} else { vscode.window.showErrorMessage(`É preciso informar o caminho(path) da pasta raiz do OCC para download do widget "${_workspace.name}" na propriedade "OCCRootPath" do arquivo "uofSettings.json".`); }
-						} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
-					} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
-				} else { vscode.window.showErrorMessage(`Você está no workspace "${_workspace.name}". O workspace selecionado no VSCode precisa ser o diretório do widget "${settings.widgetName}" definido no arquivo "uofSettings.json".`); }
+			if (prefixCommand) {
+				vscode.window.showInformationMessage(`Executando download dos widgets.`);
+				terminal?.show(true);
+				terminal?.sendText(`${prefixCommand} -b ${settings.OCCRootPath} -g`);
 			}
-		});
+		}
+	});
 
+	let createWidget = vscode.commands.registerCommand('extension.createWidget', (item) => {
+		const _workspace = vscode.workspace.workspaceFolders![0];
+		const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
+		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
+			const terminal = getActiveOccTerminal();
+			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.ccw);
+
+			if (prefixCommand) {
+				terminal?.show(true);
+				terminal?.sendText(`${prefixCommand} -b ${settings.OCCRootPath} -w`);
+			}
+		}
 	});
 
 	let uofPrepare = vscode.commands.registerCommand('extension.uofPrepare', (item) => {
@@ -101,9 +76,8 @@ export function activate(context: vscode.ExtensionContext) {
 		const wsedit = new vscode.WorkspaceEdit();
 		const filePath = vscode.Uri.file(fsPath + '/uofSettings.json');
 		const value = {
-			"environment": "dev-pf",
-			"widgetName": _workspace.name,
-			"OCCRootPath": "c:/development/OCC",
+			"environmentPrefix": "",
+			"OCCRootPath": "",
 			"platform": "windows"
 		};
 		const textEdit = new vscode.TextEdit(new vscode.Range(1, 1, 1, 1), JSON.stringify(value));
@@ -113,119 +87,247 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Arquivo "uofSettings.json" criado!');
 	});
 
-	/* Caso precise que seja salvo enviado ao salvar o arquivo. */
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(sendFile);
 	context.subscriptions.push(uofPrepare);
-	context.subscriptions.push(getOCCWidget);
+	context.subscriptions.push(refreshWidget);
+	context.subscriptions.push(grabWidget);
+	context.subscriptions.push(createWidget);
+	context.subscriptions.push(runGrab);
+
+	/* Caso precise que seja enviado ao salvar o arquivo. */
 	context.subscriptions.push(workspace.onDidSaveTextDocument((td) => {
 		const fileName = td.fileName;
-		const terminal = vscode.window.activeTerminal;
+		const terminal = getActiveOccTerminal();
 		const _workspace = vscode.workspace.workspaceFolders![0];
+		const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
+		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform)) {
+			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.dcu);
+			checkGitignore(_workspace, fileName).then((r) => {
+				if (prefixCommand) {
+					vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
+					terminal?.show(true);
+					terminal?.sendText(`${prefixCommand} -t "${fileName}"`);
+				}
+			}).catch(e => {
 
-		workspace.findFiles(new vscode.RelativePattern(_workspace, "**/uofSettings.json"), "**/node_modules/**").then(results => {
-			if (results[0]) {
-				const jsonFile = results[0].fsPath;
-				const data = fs.readFileSync(jsonFile);
-				const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-				if (_workspace.name === settings.widgetName) {
-					if (settings.environment && settings.environment !== '') {
-						if (settings.platform) {
-							const fileName = td.fileName;
-							const terminal = vscode.window.activeTerminal;
-
-							const apiAccessKey = validateEnvironmentPropertyApiKey(settings.environment.toLowerCase(), settings.platform.toLowerCase());
-							const node = validateEnvironmentPropertyNode(settings.environment.toLowerCase(), settings.platform.toLowerCase());
-							const time = `echo [${new Date().getHours()}:${new Date().getMinutes()}]`;
-
-							if (validateEnvData(settings.environment.toLowerCase())) {
-								if (settings.environment.toLowerCase().indexOf('-pj') > -1) {
-									// const x = fileName.split(`teste-ocd\\`);
-									// const y = settings.
-									
-									let q = x.join('teste-ocd\\.ccc\\');
-                  console.log('TCL Bonny: activate -> x', q);
-								}
-								vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
-								terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
-								terminal?.sendText(`dcu -n ${node} -k ${apiAccessKey} -t "${fileName}" & prompt $P$G`);
-							} else { vscode.window.showErrorMessage(`Valor incorreto na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
-						} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
-					} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
-				} else { vscode.window.showErrorMessage(`O worspace selecionado no VSCode precisa ser o diretório do widget \`${settings.widgetName}\``); }
-			}
-		});
+			});
+		}
 	}));
 
 }
 
 /**
- * Valida as informações na propriedade `environment`.
- * @param envData Dado informado na propriedade `environment`.
+ * Checa se o arquivo que vai ser salvo deve ser ignorado pelos arquivos informados no `.gitignore`.
+ * @param gitignoreList Lista de arquivos a serem ignorados em Array.
+ * @param filePath Path do arquivo a ser validado.
  */
-function validateEnvData(envData: string) {
-	return envData === occEnv.devPf || envData === occEnv.uatPf || envData === occEnv.prdPf || envData === occEnv.devPj || envData === occEnv.uatPj || envData === occEnv.prdPj;
+function checkGitignore(_workspace: vscode.WorkspaceFolder, filePath: string): Promise<boolean> {
+	const filePathSlash = filePath.replace(/\\/g, '/');
+	return new Promise((resolv, reject) => {
+		try {
+			const workspace = vscode.workspace;
+			workspace.findFiles(new vscode.RelativePattern(_workspace, "**/.gitignore"), "**/node_modules/**").then(gitignoreFiles => {
+				if (gitignoreFiles.length > 0) {
+					gitignoreFiles.forEach((result: any, indexForGitignoreFiles: number) => {
+						const jsonFile: string = result.fsPath;
+						const gitignoreList = fs.readFileSync(jsonFile).toString().split(/\n|\r/);
+						const absoluteGitignorePath = jsonFile.replace('.gitignore', '').replace(/\\/g, '/').replace(/\/\//g, '/');
+						gitignoreList.forEach((gitignoreFileName: string, indexForGitignoreList: number) => {
+							if (gitignoreFileName && gitignoreFileName !== '') {
+								const fileToBeIgnored = (absoluteGitignorePath + gitignoreFileName).replace(/\\/g, '/');
+								if (filePathSlash.indexOf('uofSettings') > -1 || filePathSlash.indexOf('gitignore') > -1 || filePathSlash.indexOf(fileToBeIgnored) > -1) {
+									reject(false);
+								} else if ((indexForGitignoreList + 1) === gitignoreList.length && (indexForGitignoreFiles + 1) === gitignoreFiles.length) {
+									resolv(true);
+								}
+							} else if ((indexForGitignoreList + 1) === gitignoreList.length && (indexForGitignoreFiles + 1) === gitignoreFiles.length) {
+								resolv(true);
+							}
+						});
+					});
+				} else if (gitignoreFiles.length === 0) {
+					if (filePathSlash.indexOf('uofSettings') > -1 || filePathSlash.indexOf('gitignore') > -1) {
+						reject(false);
+					} else {
+						resolv(true);
+					}
+				}
+			}, error => {
+
+			});
+		} catch (err) {
+			if (err.toString().indexOf('no such file or directory, open') > -1) {
+				resolv(true);
+			} else {
+				vscode.window.showErrorMessage('UOF - error: ' + err);
+			}
+		}
+	});
+
+}
+
+/**
+ * Verifica se a pasta raiz do ambiente foi informada no arquivo `uofSettings.json`.
+ * @param OCCRootPath Pasta raiz do ambiente OCC.
+ * @param workspaceName Nome do workspace.
+ * @returns {boolean} `true` = se a pasta raiz foi informada || `false` se não foi informada.
+ */
+function checkRootOccPath(OCCRootPath: string, workspaceName: string): boolean {
+	const vscWindow = vscode.window;
+	if (OCCRootPath && OCCRootPath !== '') { return true; }
+	else {
+		vscWindow.showErrorMessage(`O comando UOF não foi executado! Informe o path base do OCC na propriedade "OCCRootPath" do arquivo "uofSettings.json".`);
+		return false;
+	}
+}
+
+/**
+ * Verifica se a plataforma foi informada no arquivo `uofSettings.json`.
+ * @param platform Plataforma sendo utilizada.
+ * @returns {boolean} `true` = se a plataforma foi informada || `false` se não foi informada.
+ */
+function checkPlatform(platform: string): boolean {
+	const vscWindow = vscode.window;
+	if (platform && platform !== '') { return true; }
+	else {
+		vscWindow.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`);
+		return false;
+	}
+}
+
+/**
+ * Verifica se o ambiente foi informada no arquivo `uofSettings.json`.
+ * @param environment Ambiente OCC.
+ * @returns {boolean} `true` = se o ambiente foi informada || `false` se não foi informada.
+ */
+function checkEnvironment(environment: string): boolean {
+	const vscWindow = vscode.window;
+	if (environment && environment !== '') { return true; }
+	else {
+		vscWindow.showErrorMessage(`Erro na propriedade "environmentPrefix" no arquivo "uofSettings.json"! Favor revisar.`);
+		return false;
+	}
 }
 
 /**
  * Envia um arquivo para o OCC.
  * @param item Arquivo a ser enviado;
  * @param settings Configurações UOF do widget.
+ * @param _workspace WorkspaceFolder.
  */
-function sendOCCFile(item: any, settings: UpdateOCCFileSettings) {
-	if (settings.environment && settings.environment !== '') {
-		if (settings.platform) {
-			const apiAccessKey = validateEnvironmentPropertyApiKey(settings.environment.toLowerCase(), settings.platform.toLowerCase());
-			const node = validateEnvironmentPropertyNode(settings.environment.toLowerCase(), settings.platform.toLowerCase());
+function sendOCCFile(item: any, settings: UpdateOCCFileSettings, _workspace: vscode.WorkspaceFolder) {
+	if (item && item.fsPath) {
+		if (checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform)) {
+			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.dcu);
 
-			const fileName = item.fsPath;
-			const terminal = vscode.window.activeTerminal;
-			const time = `echo [${new Date().getHours()}:${new Date().getMinutes()}]`;
+			if (prefixCommand) {
+				const fileName = item.fsPath;
+				const terminal = getActiveOccTerminal();
 
-			if (validateEnvData(settings.environment.toLowerCase())) {
+				checkGitignore(_workspace, fileName).then(() => {
+					vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
+					terminal?.show(true);
+					terminal?.sendText(`${prefixCommand} -t "${fileName}"`);
+				});
+			}
+		}
+	} else {
+		vscode.window.showWarningMessage('O comando "UOF Send File" não foi executado. Clique com o botão direito em um dos arquivos da instância e selecione o comando!')
+	}
+}
 
-				console.log('TCL Bonny: activate -> time', time);
-				vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
-				terminal?.sendText(`prompt $P [$T$H$H$H]$G`);
-				terminal?.sendText(`dcu -n ${node} -k ${apiAccessKey} -t "${fileName}" & prompt $P$G`);
-			} else { vscode.window.showErrorMessage(`Valor incorreto na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
-		} else { vscode.window.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`); }
-	} else { vscode.window.showErrorMessage(`Erro na propriedade "environment" no arquivo "uofSettings.json"! Favor revisar.`); }
+/**
+ * Monta a base do comando DCU com a API Key e o nó do ambiente.
+ * @param environment Ambiente de desenvolvimento.
+ * @param platform Plataforma Windows ou iOS.
+ */
+function mountPrefixCommand(environment: string, platform: string, context?: string) {
+	const env = environment.toUpperCase().replace('-', '_');
+	const platf = platform.toLowerCase();
+	const apiAccessKey = validateEnvironmentPropertyApiKey(env, platf);
+	const node = validateEnvironmentPropertyNode(env, platf);
+	return `${context === occAlias.ccw ? occAlias.ccw : occAlias.dcu} -k ${apiAccessKey} -n ${node}`;
 }
 
 /**
  * Verifica o ambiente e retorna a variável de ambiente para API Key.
- * @param environment Embiante de desenvolvimento.
+ * @param environment Ambiente de desenvolvimento.
+ * @param platform Plataforma Windows ou iOS.
  */
 function validateEnvironmentPropertyApiKey(environment: string, platform: string) {
-	if (environment.indexOf('-pj') > -1) {
-		const env = platform === 'windows' ? EEnvWindowsPj : EEnvIosPj;
-		return environment === occEnv.prdPj ? env.prodApiKey : environment === occEnv.uatPj ? env.uatApiKey : environment === occEnv.devPj ? env.devApiKey : 'error';
-	}
-	else {
-		const env = platform === 'windows' ? EEnvWindowsPf : EEnvIosPf;
-		return environment === occEnv.prdPf ? env.prodApiKey : environment === occEnv.uatPf ? env.uatApiKey : environment === occEnv.devPf ? env.devApiKey : 'error';
-	}
+	const apiKeySuffix = '_API_KEY';
+	const env = platform === 'windows' ? `%${environment}${apiKeySuffix}%` : `$${environment}${apiKeySuffix}`;
+	return env;
+
 }
 
 /**
  * Verifica o ambiente e retorna a variável de ambiente para o nó desejado.
- * @param environment Embiante de desenvolvimento.
+ * @param environment Ambiente de desenvolvimento.
+ * @param platform Plataforma Windows ou iOS.
  */
 function validateEnvironmentPropertyNode(environment: string, platform: string) {
-	if (environment.indexOf('-pj') > -1) {
-		const env = platform === 'windows' ? EEnvWindowsPj : EEnvIosPj;
-		return environment === occEnv.prdPj ? env.prodNode : environment === occEnv.uatPj ? env.uatNode : environment === occEnv.devPj ? env.devNode : 'error';
-	}
-	else {
-		const env = platform === 'windows' ? EEnvWindowsPf : EEnvIosPf;
-		return environment === occEnv.prdPf ? env.prodNode : environment === occEnv.uatPf ? env.uatNode : environment === occEnv.devPf ? env.devNode : 'error';
-	}
+	const nodeSuffix = '_NODE';
+	const env = platform === 'windows' ? `%${environment}${nodeSuffix}%` : `$${environment}${nodeSuffix}`;
+	return env;
 }
 
-function getWebviewContent(cat: keyof typeof cats) {
-	return `<webview>
-	<iframe src="https://www.w3schools.com" width="100%" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin"></iframe></webview>`;
+/**
+ * Cria um novo terminal ou recupera o terminal OCC já ativo.
+ * @returns vscode.Terminal
+ */
+function getActiveOccTerminal(): vscode.Terminal {
+	const occActionsTerminalName = "OCC actions";
+	let occActiveTerminal = vscode.window.terminals.find((activeTerm) => {
+		return activeTerm.name === occActionsTerminalName ? activeTerm : false;
+	});
+	if (occActiveTerminal?.creationOptions.name === occActionsTerminalName) {
+		return occActiveTerminal;
+	} else { return vscode.window.createTerminal(occActionsTerminalName); }
+}
+
+/**
+ * Executa as validações para os comandos de `refreshWidget` e `grabWidget`.
+ * @param fsPath Caminho do arquivo.
+ * @param context Contexto do comando - `e` para --refresh | `g` para grab.  
+ */
+function gradOrRefreshWidget(fsPath: string, context: string) {
+	const workspace = vscode.workspace;
+	let widgetName: string | undefined;
+	if (fsPath) {
+		if (fsPath.lastIndexOf('\\widget\\') > -1) {
+			widgetName = fsPath.substring(fsPath.lastIndexOf('\\widget\\') + 8, fsPath.length);
+			if (widgetName.indexOf('\\') > -1) {
+				widgetName = undefined;
+			}
+
+			const _workspace = vscode.workspace.workspaceFolders![0];
+			const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
+			const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+			if (checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
+				const terminal = getActiveOccTerminal();
+
+				const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.dcu);
+				if (prefixCommand) {
+					if (widgetName) {
+						vscode.window.showInformationMessage(`Executando download do widget "${widgetName ? widgetName : _workspace.name}".`);
+						terminal?.show(true);
+						terminal?.sendText(`${prefixCommand} -b ${settings.OCCRootPath} -${context} "widget/${widgetName ? widgetName : _workspace.name}"`);
+					} else {
+						vscode.window.showWarningMessage(`O "${context === 'e' ? 'UOF Refresh Widget' : 'UOF Grab Widget'}" não foi executado. A pasta "${fsPath}" não foi reconhecida como um Widget!`);
+					}
+				}
+			}
+		} else {
+			vscode.window.showWarningMessage(`O "${context === 'e' ? 'UOF Refresh Widget' : 'UOF Grab Widget'}" não foi executado. A pasta "${fsPath}" não foi reconhecida como um Widget!`);
+		}
+	} else {
+		vscode.window.showWarningMessage(`O UOF Refresh Widget não foi executado. Clique com o botão direito do mouse sobre a pasta de um Widget válido!`);
+	}
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() { }
+
+// TODO: Criar ação para criar variáveis de ambiente via prompt de comando
