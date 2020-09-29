@@ -10,7 +10,7 @@ A versão atual te permitirá enviar realizar o download de um widget e enviar a
 Esta versão é apenas para testes com poucas pessoas. Então a mesma está sujeita a alterações ou sugestões de melhoria.
 Há, também, possíveis erros ainda não vistos e outros já levantados os quais estão sendo resolvidos.
 
-> Para sugestões, mande um e-mail para **boanerges.nascimento@compasso.com.br**.
+> Para sugestões, mande um e-mail para **boanergessn@gmail.com**.
 
 ## Requisitos
 
