@@ -40,6 +40,8 @@ Estando com VS Code aberto, você precisará criar um arquivo de configurações
   ```
 Na propriedade `environmentPrefix`, você precisa informar o prefixo da variável de ambiente. O _UOF_ concatena o valor contido nesta propriedade com os sufixos `_API_KEY` e `_NODE` para formar o nome das variáveis de ambiente criadas. Sendo assim, se o valor informado na propriedade for `test`, então o _UOF_ devolverá os nomes das variáveis como `%TEST_API_KEY%` e `%TEST_NODE%`. Nesse caso, você pode criar as variáveis de ambiente com qualquer prefixo, o que facilita caso desenvolva em mais de uma instância OCC.
 
+Para o MacOs, prefira adicionar essas variáveis de ambiente no própri VSCode Setting, fica mais fácil de alterar caso necessário. Basta seguir a documentação do VSCode (https://code.visualstudio.com/docs/getstarted/settings).
+
 ### Para enviar arquivos
 
 Tendo atendido os pontos acima, você deverá acionar o _UOF_ clicando com o botão direito do mouse em um dos arquivos e clicar no comando **UOF Send File**. Daí pre frente, você pode salvar um ou mais arquivos e aguardar o upload acompanhando o terminar do VS Code que será aberto pelo _UOF_ com o nome `UOF actions`.

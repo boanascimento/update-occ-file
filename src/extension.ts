@@ -3,7 +3,8 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { UpdateOCCFileSettings } from './models/updateOCCFileSettings.module';
-import { EOccAlias } from './extension.enum';
+import { EOccAlias, EPlatform } from './extension.enum';
+import { settings } from 'cluster';
 // import childProcess = require('child_process');
 
 const occAlias = EOccAlias;
@@ -22,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The commandId parameter must match the command field in package.json
 	let sendFile = vscode.commands.registerCommand('extension.sendFile', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
+		const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
 		if (settings) {
 			sendOCCFile(item, settings, _workspace);
@@ -41,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let runGrab = vscode.commands.registerCommand('extension.runGrab', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
+		const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
 		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 			const terminal = getActiveOccTerminal();
@@ -57,7 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let createWidget = vscode.commands.registerCommand('extension.createWidget', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
+		const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
 		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 			const terminal = getActiveOccTerminal();
@@ -99,7 +100,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const fileName = td.fileName;
 		const terminal = getActiveOccTerminal();
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
+		const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
 		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform)) {
 			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.dcu);
@@ -233,7 +234,7 @@ function sendOCCFile(item: any, settings: UpdateOCCFileSettings, _workspace: vsc
 			}
 		}
 	} else {
-		vscode.window.showWarningMessage('O comando "UOF Send File" não foi executado. Clique com o botão direito em um dos arquivos da instância e selecione o comando!')
+		vscode.window.showWarningMessage('O comando "UOF Send File" não foi executado. Clique com o botão direito em um dos arquivos da instância e selecione o comando!');
 	}
 }
 
@@ -293,18 +294,19 @@ function getActiveOccTerminal(): vscode.Terminal {
  * @param context Contexto do comando - `e` para --refresh | `g` para grab.  
  */
 function gradOrRefreshWidget(fsPath: string, context: string) {
-	const workspace = vscode.workspace;
 	let widgetName: string | undefined;
+
 	if (fsPath) {
-		if (fsPath.lastIndexOf('\\widget\\') > -1) {
-			widgetName = fsPath.substring(fsPath.lastIndexOf('\\widget\\') + 8, fsPath.length);
-			if (widgetName.indexOf('\\') > -1) {
+		if (fsPath.lastIndexOf('\\widget\\') > -1 || fsPath.lastIndexOf('/widget/') > -1) {
+			const _workspace = vscode.workspace.workspaceFolders![0];
+			const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
+			const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+			const widgetPathLocation = settings.platform === EPlatform.windows ? '\\widget\\' : '/widget/';
+			widgetName = fsPath.substring(fsPath.lastIndexOf(widgetPathLocation) + 8, fsPath.length);
+
+			if (widgetName.indexOf('\\') > -1 || widgetName.indexOf('/') > -1) {
 				widgetName = undefined;
 			}
-
-			const _workspace = vscode.workspace.workspaceFolders![0];
-			const data = fs.readFileSync(_workspace.uri.fsPath + '\\uofSettings.json');
-			const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
 			if (checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 				const terminal = getActiveOccTerminal();
 
