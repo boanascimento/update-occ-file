@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const _workspace = vscode.workspace.workspaceFolders![0];
 		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
+		if (settings && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 			const terminal = getActiveOccTerminal();
 			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
 
@@ -63,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const _workspace = vscode.workspace.workspaceFolders![0];
 		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
+		if (settings && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 			const terminal = getActiveOccTerminal();
 			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.ccw);
 
@@ -104,7 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const _workspace = vscode.workspace.workspaceFolders![0];
 		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform)) {
+		if (settings && checkPlatform(userPlatform)) {
 			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
 			checkGitignore(_workspace, fileName).then((r) => {
 				if (prefixCommand) {
@@ -200,20 +200,6 @@ function checkPlatform(platform: string): boolean {
 }
 
 /**
- * Verifica se o ambiente foi informada no arquivo `uofSettings.json`.
- * @param environment Ambiente OCC.
- * @returns {boolean} `true` = se o ambiente foi informada || `false` se não foi informada.
- */
-function checkEnvironment(environment: string): boolean {
-	const vscWindow = vscode.window;
-	if (environment && environment !== '') { return true; }
-	else {
-		vscWindow.showErrorMessage(`Erro na propriedade "environmentPrefix" no arquivo "uofSettings.json"! Favor revisar.`);
-		return false;
-	}
-}
-
-/**
  * Envia um arquivo para o OCC.
  * @param item Arquivo a ser enviado;
  * @param settings Configurações UOF do widget.
@@ -221,7 +207,7 @@ function checkEnvironment(environment: string): boolean {
  */
 function sendOCCFile(item: any, settings: UpdateOCCFileSettings, _workspace: vscode.WorkspaceFolder) {
 	if (item && item.fsPath) {
-		if (checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform)) {
+		if (checkPlatform(userPlatform)) {
 			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
 
 			if (prefixCommand) {
@@ -309,7 +295,7 @@ function gradOrRefreshWidget(fsPath: string, context: string) {
 			if (widgetName.indexOf('\\') > -1 || widgetName.indexOf('/') > -1) {
 				widgetName = undefined;
 			}
-			if (checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
+			if (checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 				const terminal = getActiveOccTerminal();
 
 				const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
