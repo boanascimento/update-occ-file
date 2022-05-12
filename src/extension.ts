@@ -10,7 +10,7 @@ import * as os from 'os';
 
 const occAlias = EOccAlias;
 const userPlatform = os.platform() === 'darwin' ? EPlatform.macOS : EPlatform.windows;
-const uofSettingPath = os.platform() === 'darwin' ? '\\uofSettings.json' : '/uofSettings.json';
+const uofSettingPath = os.platform() === 'darwin' ? '/uofSettings.json' : '\\uofSettings.json';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed

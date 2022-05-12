@@ -5,6 +5,8 @@
 
 # Construir arquivo de instalação
 
+- Intale o `vsce` com o comando `npm i -g vsce`;
+
 - No terminal, execute o comando `npm run create-vsix`;
   > Vai ser criado um arquivo com o nome da extensão e a versão `update-occ-file-0.4.4.vsix` na pasta principal do projeto.
 
