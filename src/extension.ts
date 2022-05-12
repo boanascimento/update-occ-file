@@ -81,8 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const filePath = vscode.Uri.file(fsPath + uofSettingPath);
 		const value = {
 			"environmentPrefix": "",
-			"OCCRootPath": "",
-			"platform": "windows"
+			"OCCRootPath": ""
 		};
 		const textEdit = new vscode.TextEdit(new vscode.Range(1, 1, 1, 1), JSON.stringify(value));
 		wsedit.createFile(filePath, { ignoreIfExists: true, overwrite: true });
