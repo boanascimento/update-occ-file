@@ -5,9 +5,12 @@ import * as fs from 'fs';
 import { UpdateOCCFileSettings } from './models/updateOCCFileSettings.module';
 import { EOccAlias, EPlatform } from './extension.enum';
 import { settings } from 'cluster';
+import * as os from 'os';
 // import childProcess = require('child_process');
 
 const occAlias = EOccAlias;
+const userPlatform = os.platform() === 'darwin' ? EPlatform.macOS : EPlatform.windows;
+const uofSettingPath = os.platform() === 'darwin' ? '\\uofSettings.json' : '/uofSettings.json';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -23,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The commandId parameter must match the command field in package.json
 	let sendFile = vscode.commands.registerCommand('extension.sendFile', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
+		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
 		if (settings) {
 			sendOCCFile(item, settings, _workspace);
@@ -42,11 +45,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let runGrab = vscode.commands.registerCommand('extension.runGrab', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
+		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
+		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 			const terminal = getActiveOccTerminal();
-			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.dcu);
+			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
 
 			if (prefixCommand) {
 				vscode.window.showInformationMessage(`Executando download dos widgets.`);
@@ -58,11 +61,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let createWidget = vscode.commands.registerCommand('extension.createWidget', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
+		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
+		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 			const terminal = getActiveOccTerminal();
-			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.ccw);
+			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.ccw);
 
 			if (prefixCommand) {
 				terminal?.show(true);
@@ -75,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const _workspace = vscode.workspace.workspaceFolders![0];
 		const fsPath = _workspace.uri.fsPath;
 		const wsedit = new vscode.WorkspaceEdit();
-		const filePath = vscode.Uri.file(fsPath + '/uofSettings.json');
+		const filePath = vscode.Uri.file(fsPath + uofSettingPath);
 		const value = {
 			"environmentPrefix": "",
 			"OCCRootPath": "",
@@ -100,10 +103,10 @@ export function activate(context: vscode.ExtensionContext) {
 		const fileName = td.fileName;
 		const terminal = getActiveOccTerminal();
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
+		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
 		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform)) {
-			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.dcu);
+		if (settings && checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform)) {
+			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
 			checkGitignore(_workspace, fileName).then((r) => {
 				if (prefixCommand) {
 					vscode.window.showInformationMessage(`Enviando arquivo "${fileName}"`);
@@ -219,8 +222,8 @@ function checkEnvironment(environment: string): boolean {
  */
 function sendOCCFile(item: any, settings: UpdateOCCFileSettings, _workspace: vscode.WorkspaceFolder) {
 	if (item && item.fsPath) {
-		if (checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform)) {
-			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.dcu);
+		if (checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform)) {
+			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
 
 			if (prefixCommand) {
 				const fileName = item.fsPath;
@@ -299,18 +302,18 @@ function gradOrRefreshWidget(fsPath: string, context: string) {
 	if (fsPath) {
 		if (fsPath.lastIndexOf('\\widget\\') > -1 || fsPath.lastIndexOf('/widget/') > -1) {
 			const _workspace = vscode.workspace.workspaceFolders![0];
-			const data = fs.readFileSync(_workspace.uri.fsPath + '/uofSettings.json');
+			const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
 			const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
-			const widgetPathLocation = settings.platform === EPlatform.windows ? '\\widget\\' : '/widget/';
+			const widgetPathLocation = userPlatform === EPlatform.windows ? '\\widget\\' : '/widget/';
 			widgetName = fsPath.substring(fsPath.lastIndexOf(widgetPathLocation) + 8, fsPath.length);
 
 			if (widgetName.indexOf('\\') > -1 || widgetName.indexOf('/') > -1) {
 				widgetName = undefined;
 			}
-			if (checkEnvironment(settings.environmentPrefix) && checkPlatform(settings.platform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
+			if (checkEnvironment(settings.environmentPrefix) && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 				const terminal = getActiveOccTerminal();
 
-				const prefixCommand = mountPrefixCommand(settings.environmentPrefix, settings.platform, occAlias.dcu);
+				const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
 				if (prefixCommand) {
 					if (widgetName) {
 						vscode.window.showInformationMessage(`Executando download do widget "${widgetName ? widgetName : _workspace.name}".`);
