@@ -78,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const _workspace = vscode.workspace.workspaceFolders![0];
 		const fsPath = _workspace.uri.fsPath;
 		const wsedit = new vscode.WorkspaceEdit();
-		const filePath = vscode.Uri.file(fsPath + uofSettingPath);
+		const filePath = vscode.Uri.file(fsPath + '/uofSettings.json');
 		const value = {
 			"environmentPrefix": "",
 			"OCCRootPath": ""
