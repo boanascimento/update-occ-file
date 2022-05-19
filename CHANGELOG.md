@@ -11,6 +11,10 @@ Aqui você pode ficar por dentro do que foi alterado ou incrementado em cada ver
 - Preparação do arquivo `uofSettings.json` com o comando `ctrl + shift + P` **UOF Prepare**;
 - Criar widget com o comando `ctrl + shift + P` **UOF Create Widget**;
 
-## v0.6.0
+## v0.7.0
+
+Nesta versão foi incluso a nova opção de tipo de terminal com a propriedade `terminalType` no arquivo `uofSettings.json`.
+
+## v0.6.2
 
 Nesta versão foi anulado o uso a propriedade `platform` no arquivo `uofSettings.json`.

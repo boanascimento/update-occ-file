@@ -8,3 +8,8 @@ export enum EPlatform {
   macOS = 'macos',
   windows = 'windows'
 }
+
+export enum ETerminalType {
+  cmd = 'cmd',
+  bash = 'bash'
+}

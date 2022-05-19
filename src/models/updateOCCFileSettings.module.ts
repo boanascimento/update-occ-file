@@ -1,13 +1,13 @@
 export class UpdateOCCFileSettings {
   environmentPrefix!: string;
   OCCRootPath!: string;
-  platform!: string;
+  terminalType?: string;
 
   constructor(json?: any) {
     if (json !== null) {
       this.environmentPrefix = json.environmentPrefix;
       this.OCCRootPath = json.OCCRootPath;
-      this.platform = json.platform;
+      this.terminalType = json.terminalType ? json.terminalType : null;
     }
   }
 }

@@ -35,6 +35,7 @@ Estando com VS Code aberto, você precisará criar um arquivo de configurações
   {
     "environmentPrefix": "test", // Prefixo da variável de ambiente criada.
     "OCCRootPath": "c:/development/OCC", // Pasta base do OCC na sua máquina.
+    "terminalType": "bash" // Terminal padrão sendo utilizado. "cmd" para "%" | "bash" para "$"
   }
   ```
 Na propriedade `environmentPrefix`, você precisa informar o prefixo da variável de ambiente. O _UOF_ concatena o valor contido nesta propriedade com os sufixos `_API_KEY` e `_NODE` para formar o nome das variáveis de ambiente criadas. Sendo assim, se o valor informado na propriedade for `test`, então o _UOF_ devolverá os nomes das variáveis como `%TEST_API_KEY%` e `%TEST_NODE%`. Nesse caso, você pode criar as variáveis de ambiente com qualquer prefixo, o que facilita caso desenvolva em mais de uma instância OCC.

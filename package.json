@@ -2,7 +2,7 @@
 	"name": "update-occ-file",
 	"displayName": "Update OCC File",
 	"description": "Utilizada para atualizar um arquivo específico no OCC Livelo",
-	"version": "0.6.2",
+	"version": "0.7.0",
 	"publisher": "boanergesbone",
 	"icon": "uof-icon.png",
 	"repository": {
@@ -26,6 +26,12 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"jsonValidation":[
+			{
+				"fileMatch": "./uofSettings.json",
+				"url": "./json-validator.json"
+			}
+		],
 		"commands": [
 			{
 				"command": "extension.sendFile",
@@ -65,6 +71,10 @@
 				{
 					"command": "extension.grabWidget",
 					"when": "explorerResourceIsFolder"
+				},
+				{
+					"command": "extension.uofPrepare",
+					"when": "workspaceFolderCount"
 				}
 			],
 			"editor/title/context": [

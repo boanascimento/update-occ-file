@@ -3,8 +3,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { UpdateOCCFileSettings } from './models/updateOCCFileSettings.module';
-import { EOccAlias, EPlatform } from './extension.enum';
-import { settings } from 'cluster';
+import { EOccAlias, EPlatform, ETerminalType } from './extension.enum';
 import * as os from 'os';
 // import childProcess = require('child_process');
 
@@ -26,8 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The commandId parameter must match the command field in package.json
 	let sendFile = vscode.commands.registerCommand('extension.sendFile', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
-		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+		const settings = getUofSettingFile();
 		if (settings) {
 			sendOCCFile(item, settings, _workspace);
 		}
@@ -45,8 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let runGrab = vscode.commands.registerCommand('extension.runGrab', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
-		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+		const settings =getUofSettingFile();
 		if (settings && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 			const terminal = getActiveOccTerminal();
 			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
@@ -61,8 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let createWidget = vscode.commands.registerCommand('extension.createWidget', (item) => {
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
-		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+		const settings = getUofSettingFile();
 		if (settings && checkPlatform(userPlatform) && checkRootOccPath(settings.OCCRootPath, _workspace.name)) {
 			const terminal = getActiveOccTerminal();
 			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.ccw);
@@ -102,8 +98,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const fileName = td.fileName;
 		const terminal = getActiveOccTerminal();
 		const _workspace = vscode.workspace.workspaceFolders![0];
-		const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
-		const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+		const settings = getUofSettingFile();
 		if (settings && checkPlatform(userPlatform)) {
 			const prefixCommand = mountPrefixCommand(settings.environmentPrefix, userPlatform, occAlias.dcu);
 			checkGitignore(_workspace, fileName).then((r) => {
@@ -194,7 +189,7 @@ function checkPlatform(platform: string): boolean {
 	const vscWindow = vscode.window;
 	if (platform && platform !== '') { return true; }
 	else {
-		vscWindow.showErrorMessage(`É preciso informar a plataforma na propriedade "platform" no arquivo "uofSettings.json"!`);
+		vscWindow.showErrorMessage(`Ocorreu erro ao tentar identificar a plataforma!`);
 		return false;
 	}
 }
@@ -246,7 +241,7 @@ function mountPrefixCommand(environment: string, platform: string, context?: str
  */
 function validateEnvironmentPropertyApiKey(environment: string, platform: string) {
 	const apiKeySuffix = '_API_KEY';
-	const env = platform === 'windows' ? `%${environment}${apiKeySuffix}%` : `$${environment}${apiKeySuffix}`;
+	const env = mountEnv(environment, platform, apiKeySuffix);
 	return env;
 
 }
@@ -258,8 +253,28 @@ function validateEnvironmentPropertyApiKey(environment: string, platform: string
  */
 function validateEnvironmentPropertyNode(environment: string, platform: string) {
 	const nodeSuffix = '_NODE';
-	const env = platform === 'windows' ? `%${environment}${nodeSuffix}%` : `$${environment}${nodeSuffix}`;
+	const env = mountEnv(environment, platform, nodeSuffix);
 	return env;
+}
+
+function mountEnv(environment: string, platform: string, suffix: string) {
+	const envDelimiter = getEnvDelimiter();
+	const envWithDelimiter = envDelimiter === '$' ? `${envDelimiter}${environment}${suffix}` : `${envDelimiter}${environment}${suffix}${envDelimiter}`;
+	const env = platform === 'windows' ? `%${environment}${suffix}%` : `$${environment}${suffix}`;
+	return envDelimiter ? envWithDelimiter : env;
+}
+
+/**
+ * Gets environment character delimiter.
+ */
+function getEnvDelimiter() {
+	const settings  = getUofSettingFile();
+	if(settings.terminalType) {
+		const tType = settings.terminalType;
+		return tType === ETerminalType.cmd ? '%' : tType === ETerminalType.bash ? '$' : null;
+	} else {
+		return;
+	}
 }
 
 /**
@@ -267,7 +282,7 @@ function validateEnvironmentPropertyNode(environment: string, platform: string) 
  * @returns vscode.Terminal
  */
 function getActiveOccTerminal(): vscode.Terminal {
-	const occActionsTerminalName = "OCC actions";
+	const occActionsTerminalName = "UOF actions";
 	let occActiveTerminal = vscode.window.terminals.find((activeTerm) => {
 		return activeTerm.name === occActionsTerminalName ? activeTerm : false;
 	});
@@ -287,8 +302,7 @@ function gradOrRefreshWidget(fsPath: string, context: string) {
 	if (fsPath) {
 		if (fsPath.lastIndexOf('\\widget\\') > -1 || fsPath.lastIndexOf('/widget/') > -1) {
 			const _workspace = vscode.workspace.workspaceFolders![0];
-			const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
-			const settings = new UpdateOCCFileSettings(JSON.parse(data.toString()));
+			const settings = getUofSettingFile();
 			const widgetPathLocation = userPlatform === EPlatform.windows ? '\\widget\\' : '/widget/';
 			widgetName = fsPath.substring(fsPath.lastIndexOf(widgetPathLocation) + 8, fsPath.length);
 
@@ -317,7 +331,17 @@ function gradOrRefreshWidget(fsPath: string, context: string) {
 	}
 }
 
+/**
+ * Gets `uofSetting.json` file data.
+ */
+function getUofSettingFile(): UpdateOCCFileSettings {
+	const _workspace = vscode.workspace.workspaceFolders![0];
+	const data = fs.readFileSync(_workspace.uri.fsPath + uofSettingPath);
+	return new UpdateOCCFileSettings(JSON.parse(data.toString()));
+}
+
 // this method is called when your extension is deactivated
 export function deactivate() { }
 
-// TODO: Criar ação para criar variáveis de ambiente via prompt de comando
+// TODO: Criar ação para criar variáveis de ambiente via prompt de comando.
+// TODO: Criar schema para inserir autocomplete no arquivo `uofSetting.json` -> https://code.visualstudio.com/docs/languages/json
