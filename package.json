@@ -28,8 +28,8 @@
 	"contributes": {
 		"jsonValidation":[
 			{
-				"fileMatch": "./uofSettings.json",
-				"url": "./json-validator.json"
+				"fileMatch": "uofSettings.json",
+				"url": "./uofSettings-json-schema.json"
 			}
 		],
 		"commands": [
